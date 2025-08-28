@@ -1,7 +1,21 @@
 #+title: overview
 #+startup: indent overview hideblocks entitiespretty
 
-* Personal Learning Goals:
+* Course Goal
+- Learn to solve competitive programs on [[https://open.kattis.com/][Open Kattis]] platform.
+
+- Learn to code efficiently and correctly
+  - Pseudocode & keyboard-less coding practice to truly test knowledge of programming
+  - Discovering new techniques - There's always something new to learn.
+
+- Problem solving and coding in a using ~literate programming~ concepts
+  In particular, I am very invested in learning to use relevant features in Emacs,
+  in this and other courses like it. Failure to document code and preserve its context is a lost opportunity.
+
+- Sharing what we've learned
+  In the spirit of FOSS, sharing our knowledge with each-other makes us stronger computer scientists.
+
+* Personal Learning Goals
 - [ ] lambdas
 - [ ] learn std::string
 - [ ] multi-language competence

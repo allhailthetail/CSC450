@@ -1,0 +1,156 @@
+#+title: Lecture 2
+#+startup: indent overview hideblocks entitiespretty
+#+property: header-args:cpp :noweb yes :comments noweb :results output
+#+property: header-args:python :noweb yes :comments noweb :results output
+
+* Notes
+
+QUESTION: Why is modulo negative in CPP?
+INFO: ask about pointer arithmetic, references
+
+* Canvas & Submission
+** Pledge
+#+name: pledge
+#+begin_src cpp :noeval
+// Matthew Younger (pledged)
+#+end_src
+
+#+name: pledge_py
+#+begin_src python :noeval
+# Matthew Younger (pledged)
+#+end_src
+** Post-mortem and Feedback:
+#+begin_comment
+Explore further:
+- When to use '\n' or std::endl? I thought I read that endl should be used once all output is finished, \n whenever a newline is needed?
+  This would matter more for a program producing many thousands of lines.  ~cat~ for example...
+
+Mistakes:
+- forgot to import string, did not realize it's not necessary in every case.
+  Interestingly, it still compiles, but you don't get string's functions...
+- did not init "c" correctly in range-based for loop
+  Variable name was poorly chosen...
+- forgot semicolon after count++
+- forgot newline in cout
+- I confused ~byte~ with ~bit~, which is a very ignorant mistake to make... I should know better.
+
+Observations:
+- Though minor, I could consider more carefully when I really need to create a variable
+  and my motivations for doing so. i.e. in ~telja,~ it aided readability, but I could've used i in the for loop, also.
+
+  I realize I didn't use i in the for loop, partly because I hadn't fully considered that it stays in scope with each iteration.
+  i.e. 1->2->3...  Only when the for loop is completely over does i get destroyed.
+
+- I would like to also use Python for some of these examples so I don't lose that skill.
+  Time permitting, maybe I will write them in another language after class also?
+  Then again, some languages have a competitive advantage in the moment and re-writing is not the same as writing from scratch...
+
+- Thinking about telja more, it's more pythonic to use a list comprehension...
+  It's also a reminder that for very basic tasks, like add 2 numbers, etc, lambdas are an option...
+  I believe C++ also has lambdas and I'd like to check that out...
+
+- I should learn std::string better, because there's a ~length~ member function that elimninates the need to us a for loop...
+#+end_comment
+
+* Kattis/Telja
+
+[[https://open.kattis.com/problems/telja][Link to Problem]]
+
+#+name: telja_cpp
+#+begin_src cpp :tangle src/telja.cpp :results output
+<<pledge>>
+
+#include <iostream>
+
+int main() {
+    int num {1};
+
+    int n {};
+
+    std::cin >> n;
+
+    for (auto i = 0; i < n; i++) {
+        std::cout << num << '\n';
+        num++;
+    }
+
+    return 0;
+}
+#+end_src
+
+*Undeniably, Python shines here...*
+
+#+name: telja_py
+#+begin_src python :noexec :tangle src/telja.py
+<<pledge>>
+
+n = int(input())
+
+for i in range(0,n):
+    print(i+1)
+#+end_src
+
+Postmortem Python:
+#+name: telja_py_improved
+#+begin_src python :noexec :tangle src/telja_pm.py
+<<pledge_py>>
+
+n = int(input())
+[print(i+1) for i in range(0,n)]
+#+end_src
+
+* Kattis/Ovissa
+
+[[https://open.kattis.com/problems/ovissa][Link to Problem]]
+
+#+name: ovissa_cpp
+#+begin_src cpp :noexec :tangle src/ovissa.cpp
+<<pledge>>
+
+#include <iostream>
+#include <string>
+
+int main() {
+    std::string input {};
+    int count {};
+
+    std::cin >> input;
+
+    for (auto c: input) {
+        count++;
+    }
+
+    std::cout << count << '\n';
+
+    return 0;
+}
+#+end_src
+
+Postmortem Python:
+#+name: ovissa_py
+#+begin_src python :noexec :tangle src/ovissa.py
+<<pledge_py>>
+
+ipt = input()
+
+print(len(ipt))
+#+end_src
+
+Postmortem cpp:
+#+name: ovissa_cpp_improved
+#+begin_src cpp :noexec :tangle src/ovissa_pm.cpp
+<<pledge>>
+
+#include <iostream>
+#include <string>
+
+int main() {
+    std::string input {};
+
+    std::cin >> input;
+
+    std::cout << input.length() << '\n';
+
+    return 0;
+}
+#+end_src
