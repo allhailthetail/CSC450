@@ -1,0 +1,8 @@
+#+title: overview
+#+startup: indent overview hideblocks entitiespretty
+
+* Personal Learning Goals:
+- [ ] lambdas
+- [ ] learn std::string
+- [ ] multi-language competence
+- [ ] Pointer operations
