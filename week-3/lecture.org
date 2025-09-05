@@ -17,7 +17,7 @@
 # Matthew Younger (pledged)
 #+end_src
 ** Post-mortem and Feedback:
-#+begin_comment
+#+begin_quote
 I could tell that I hadn't programmed in Python in a while. Just like other students in the room,
 I'd forgotten how to iterate without manually specifying range, incrementing i each for loop, etc.
 Once I found my sea legs again, this was basically trivial. But, a good reminder that it's so easy to forget
@@ -38,7 +38,7 @@ a debugging tool could step through the simpler pseudocode and compare code that
 Done well, those lines are easily removed or added since they're only comments. Maybe the thought is a bunch of nothing, but so far I'm finding
 that most people really appreciate literate programming accross the disciplines I'm engaged in (myself included), and I wonder if it could be
 made even more useful, becoming a workflow from concept to pseudocode to development to debugging to maintaining production code.
-#+end_comment
+#+end_quote
 
 * Kattis/Ofugsnuid
 
