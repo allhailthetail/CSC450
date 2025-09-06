@@ -20,7 +20,7 @@ INFO: ask about pointer arithmetic, references
 # Matthew Younger (pledged)
 #+end_src
 ** Post-mortem and Feedback:
-#+begin_comment
+#+begin_quote
 Explore further:
 - When to use '\n' or std::endl? I thought I read that endl should be used once all output is finished, \n whenever a newline is needed?
   This would matter more for a program producing many thousands of lines.  ~cat~ for example...
@@ -50,7 +50,7 @@ Observations:
   I believe C++ also has lambdas and I'd like to check that out...
 
 - I should learn std::string better, because there's a ~length~ member function that eliminates the need to us a for loop...
-#+end_comment
+#+end_quote
 
 * Kattis/Telja
 
