@@ -23,21 +23,12 @@ I'd forgotten how to iterate without manually specifying range, incrementing i e
 Once I found my sea legs again, this was basically trivial. But, a good reminder that it's so easy to forget
 past skills if they're not practiced often.
 
-It's not original at all, but using Python as the pseudocode is a way I could balance both skills simultaneously.
-I wish there were a noweb option for melding two code blocks together. I was inspired yesterday realizing that Python offers "type hints"
-that allow me to annotate variables and functions with their intended type. Then, if needed I can run other tools to analyze if expectation matches
-reality as needed. This strikes a balance between C++'s more strict type system versus Python's "anything goes" design, which has led to
-frustrating errors in my code in the past.
+I do feel like I achieved my goal for the week, which was coding efficiently, but I feel rather like I took a shortcut using Python
+over something more challenging. I'm a bit torn between the goals of the other class (to learn new techniques that are new to me)
+and of this one - solve problems efficiently.
 
-Further, it's reminding me about LISP/eLISP's "code is data" methodology, which is very relevant for metaprogramming in ML with newer languages
-like OCAML and Mojo. Metaprogramming is out of scope, but the idea of an efficient workflow that makes pseudocode interactive and testable in prototyping,
-and seemlessly integrated with the more complicated production code could be cool. Maybe borrowing from the "type hints" concept,
-"code hints" could preserve ~data~ like /original intent/ when the code was written, as well as improve debugging through context, but also because
-a debugging tool could step through the simpler pseudocode and compare code that's easy to follow, to more complicated code that's not.
-
-Done well, those lines are easily removed or added since they're only comments. Maybe the thought is a bunch of nothing, but so far I'm finding
-that most people really appreciate literate programming accross the disciplines I'm engaged in (myself included), and I wonder if it could be
-made even more useful, becoming a workflow from concept to pseudocode to development to debugging to maintaining production code.
+I learned that there's a huge difference between asking for a prompt solution to a problem, versus an optimized solution. The Kattis platform
+analyzes both aspects of this, but I only focused on the first aspect.
 #+end_quote
 
 * Kattis/Ofugsnuid

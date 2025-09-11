@@ -20,3 +20,13 @@
 - [ ] learn std::string
 - [ ] multi-language competence
 - [ ] Pointer operations
+
+* Programming Literacy
+Literacy includes /reading/ code. I think this is important for students to do, because
+this skill otherwise wouldn't be obvious to improve until you're programming in a team.
+
+Focusing on that skill more as a student ensures that one is more prepared to code efficiently
+in a cooperative environment.
+
+Basically, just read something complicated and try to reverse-engineer it. Somehow do that
+but learn from it...  (There's not seemingly a whole lot of built offerings to do this)?

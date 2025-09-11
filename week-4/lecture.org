@@ -1,0 +1,227 @@
+#+title: Lecture - Week 4
+#+startup: indent overview hideblocks entitiespretty
+#+property: header-args:cpp :noweb yes :comments noweb :results output
+#+property: header-args:python :noweb yes :comments noweb :results output
+
+* Notes
+** General
+size_t is UNSIGNED. Creative solution needed if following that best practice AND using a for loop that decrements to 0.
+
+** Questions
+~auto~ correctly used int here, which would've saved me actually. I wonder if this *inference* by the compiler (it has to be plainly obvious, not a guess)
+is actually intelligent enough to prevent such a segfault?  I'd like to explore that further, for sure.
+
+#+begin_example gdb
+(gdb) break 25
+Breakpoint 1 at 0x11cd: file vidsnuningur_sizet.cpp, line 25.
+(gdb) r
+Starting program: /home/matthew/Documents/Projects/Competitive Programming/week-4/src/a.out
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+hello
+
+Breakpoint 1, main () at vidsnuningur_sizet.cpp:25
+25              std::cout << strArr[len-i-1];
+(gdb) whatis i
+type = int
+#+end_example
+
+** Thoughts/For Later
+What's best practice for deciding on types for i, etc?
+It seems inconsequential, because it goes out of scope quickly in a program, but in this case, it can be a show stopper.
+
+* Canvas & Submission
+** Pledge
+#+name: pledge
+#+begin_src cpp :noeval
+// Matthew Younger (pledged)
+#+end_src
+
+#+name: pledge_py
+#+begin_src python :noeval
+# Matthew Younger (pledged)
+#+end_src
+** Post-mortem and Feedback:
+#+begin_quote
+Something very important I didn't understand, stemming back to my question about decrementing for loops,
+if I use size_t, once it gets to 0, it won't run again, true... However, the LAST action is to i--.
+
+This i-- on any UNSIGNED datatype, like size_t, causes it to wrap BACK to a very large value and the loop attempts
+to keep running withi i = large number...  The program goes beyond the array and a segfault happens.
+I didn't realize this was my problem.
+
+Solution: use int so it goes negative and the loop ceases looping.
+
+So, size_t is great because it promises that the index will accomodate the max size of your container,
+BUT being unsigned can lead to nasty issues when decrementing a for loop.
+
+----
+
+So, I think then I need to define a better for loop that increments and uses SIZE as an offset?
+I tried implementing this [[cpp_vidsnuningur_sizet][below]].  It's not as readable, but it allows me to continue using size_t.  IDK if that's better or worse...
+That was my question in class, however.
+
+---
+
+Interesting problem, a lot harder in C++ than I thought it'd be.
+
+---
+
+Also, I thought it'd be neat to compare execution times for Python and C++ solutions. It's small, but staggering also.
+C++: 0.00
+Py: 0.04
+
+Kattis only measures to 100ths of a second, so let's figure safely that C++ took 0.009 seconds and it was floored to 0.00?
+Figure Python ran at exactly 0.040 to be generous...
+0.040 / 0.009 = 4.444 <-- Python takes AT LEAST  4x as long, even with all the extra lines of code.
+at worst, 0.049 / 0.001 <-- Potentially as bad as 49x as long for such a simple problem.  Imagine the impact at scale and consider
+that much of AI is being done in Python...
+
+So, lesson learned there also - lines of code does NOT apparently have much to do with comparing Python to C++.  A C++ solution can
+look very advanced and convoluted, but in fact be extremely efficient. It'd be neat to see how the compiler optimizes the code to instructions
+in both languages to see why this is such a big difference.
+#+end_quote
+
+* Kattis/Vidsnuningur
+
+[[https://open.kattis.com/problems/vidsnuningur][Link to Problem]]
+
+So, this is the Python solution I came up with.
+I think it's very "pythonic," because it recognizes that input() is always a string.
+From there, we are simply reversing it using sequences and slicing with the [] syntax...
+
+[[https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range][Python docs]]
+
+#+name: pseudocode_vidsnuningur
+#+begin_src python :noexec :tangle src/vidsnuningur.py
+<<pledge_py>>
+
+print(input()[::-1])
+#+end_src
+
+This is hard in C++...  I was inspired by the instructor's submission last week and I wanted to try to produce an
+optimized version this week in a similar spirit.
+I wanted to try to do this without any docs, which I was surprisingly unable to do so for the following reasons:
+
+I was under the impression that sizeof() would yield the size of my string in bytes of my string, as it does if I run sizeof()
+on a character array... This was not so.
+
+I expected a variation of this:
+#+begin_src cpp
+#include <iostream>
+
+int main() {
+    char char_arr[] { "hello" };
+
+    std::cout << sizeof(char_arr) << '\n';
+
+    return 0;
+}
+#+end_src
+
+#+RESULTS:
+: 6
+
+What I received:
+#+begin_src cpp
+#include <iostream>
+
+int main() {
+    std::string my_string { "hello" };
+
+    std::cout << sizeof(my_string) << '\n';
+
+    return 0;
+}
+#+end_src
+
+#+RESULTS:
+: 32
+
+I continued to try to figure out this out until I realized it's rather over my head and I don't have time to
+try to figure it out at this point. The details are apparently in the implementation of the String data type and
+requires understanding that library and how it abstracts Strings, and also specific details for the compiler being used.
+Strings are complicated, apparently.
+
+Rather, I think the smarter approach was to leverage the constraints of the problem and use a char[] of set length as so:
+In addition, leverage the handy technique of using a /reference/ with a range-based for loop...
+
+#+name: cpp_vidsnuningur
+#+begin_src cpp :noexec :tangle src/vidsnuningur.cpp
+<<pledge>>
+
+#include <iostream>
+
+int main() {
+
+    // init a new char array and init it as empty:
+    const int SIZE {1000};
+    char strArr[1000] {};
+
+    // Get input
+    std::cin.getline(strArr, SIZE);
+
+    // Calculate the length
+    size_t len { 0 };
+    while (strArr[len] != '\0')
+        len++;
+
+    // Print array in reverse
+    for (int i = len - 1; i >= 0; i--)
+        std::cout << strArr[i];
+
+
+    // lastly, flush buffer.  Weee....
+    std::cout << std::endl;
+
+    // Exit successfully
+    return 0;
+}
+#+end_src
+
+#+name: cpp_vidsnuningur_sizet
+#+begin_src cpp :noexec :tangle src/vidsnuningur_sizet.cpp
+<<pledge>>
+
+#include <iostream>
+
+int main() {
+
+    // init a new char array and init it as empty:
+    const int SIZE {1000};
+    char strArr[1000] {};
+
+    // Get input
+    std::cin.getline(strArr, SIZE);
+
+    // Calculate the length
+    size_t len { 0 };
+    while (strArr[len] != '\0')
+        len++;
+
+    // Print array in reverse
+    for (size_t i = 0; len-i > 0; i++)
+        std::cout << strArr[len-i-1];
+
+
+    // lastly, flush buffer.  Weee....
+    std::cout << std::endl;
+
+    // Exit successfully
+    return 0;
+}
+#+end_src
+
+#+begin_src bash :results output
+g++ src/vidsnuningur.cpp -o./src/a.out
+echo "hello" | ./src/a.out
+
+g++ src/vidsnuningur_sizet.cpp -o./src/a.out
+echo "hello" | ./src/a.out
+
+
+#+end_src
+
+#+RESULTS:
+: olleh
+: olleh
