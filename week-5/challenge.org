@@ -20,6 +20,13 @@
 #+end_src
 ** Post-mortem and Feedback:
 #+begin_quote
+I mis-read the original question and thought it was splitting the array in half and doing a mirror image...
+
+i.e.
+|1|2|3|4|5|
+|1|2|3|2|1|
+
+Later, I realized I was wrong and corrected it.
 #+end_quote
 
 * Competitive Prog/Challenge

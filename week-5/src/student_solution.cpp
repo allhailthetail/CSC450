@@ -1,5 +1,5 @@
 // [[file:../challenge.org::cpp_my_solution][cpp_my_solution]]
-// [[file:challenge.org::cpp_my_solution][pledge]]
+// [[file:challenge.org::pledge][pledge]]
 // Matthew Younger (pledged)
 // pledge ends here
 
