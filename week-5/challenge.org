@@ -1,0 +1,143 @@
+#+title: Lecture
+#+startup: indent overview hideblocks entitiespretty
+#+property: header-args:cpp :noweb yes :comments noweb :results output
+#+property: header-args:python :noweb yes :comments noweb :results output
+
+* Notes
+** General
+** Questions
+** Thoughts/For Later
+* Canvas & Submission
+** Pledge
+#+name: pledge
+#+begin_src cpp :noeval
+// Matthew Younger (pledged)
+#+end_src
+
+#+name: pledge_py
+#+begin_src python :noeval
+# Matthew Younger (pledged)
+#+end_src
+** Post-mortem and Feedback:
+#+begin_quote
+#+end_quote
+
+* Competitive Prog/Challenge
+
+#+name: instructur_code
+#+begin_src cpp
+#include <iostream>
+using namespace std;
+
+void mystery(int arr[], int n);
+
+int main()
+{
+  int a[5] {100, 200, 300, 400, 500};
+
+  for (int element: a) cout << element << " ";
+  cout << endl;
+
+  mystery(a, 5);
+
+  for (int element: a) cout << element << " ";
+
+  return 0;
+}
+
+void mystery(int arr[], int n)
+{
+  int left = 0;
+  int right = n - 1;
+  int swaps = (n%2 == 0) ? (n/2) : ((n-1) / 2);
+
+  for (int count = 0; count < swaps; count++){
+    int temp = 0;
+    temp += arr[left];
+    temp -= 0;
+    arr[left] = arr[right] + 0;
+    arr[right] = temp * 1;
+    left = left + 1;
+    right = right - 1;
+  }
+}
+#+end_src
+
+#+RESULTS: instructur_code
+: 100 200 300 400 500
+: 500 400 300 200 100
+
+
+** Student Solution
+
+My thought is that we really just need to know where the midpoint of the array is.
+In the case that it's even, i.e. 6, the midpoint is exactly 3, equals the number of times we need to loop in order to reverse.
+In the case that it's odd, i.e. 5, the midpoint is 2.5 2 if we floor...
+Let's purposefully leverage implicity conversion, because we're good devs and know how to use it purposefully... \blacksmile
+
+i.e. int 5 / int 2 = 2, NOT 2.5
+
+This was probably the biggest reduction in complexity I could find.
+
+---
+
+It's slightly longer code to reverse from outsides working inward to the center,
+but it seems like it'd be less work for the computer. I.e. the for loop to reverse the array
+one-by-one into a new array seems heavier. It'd have to run 5 times in a loop vs only 2,
+there'd need to be another empty array created (2x the memory).
+
+---
+
+I learned last week that --i ++i are slightly faster than i--, etc. So, implemented that...
+
+The code swapping the array values wasn't as clean/readable as defining some new variables,
+but the challenge was to shorten it... I think with comments it's intelligible...
+
+
+#+name: cpp_my_solution
+#+begin_src cpp :tangle src/student_solution.cpp :results output
+<<pledge>>
+
+#include <iostream>
+
+// Contents of array don't matter, just that we can reverse...
+void reverse(int[] , const int);
+
+int main() {
+    // Init C-style array length SIZE
+    const int SIZE = 5;
+    int a[SIZE] { 100, 200, 300, 400, 500 };
+
+    // print Array
+    for (int item: a) std::cout << item << ' ';
+    std::cout << '\n';
+
+    reverse(a, SIZE);
+
+    // print Array
+    for (int item: a) std::cout << item << ' ';
+    std::cout << '\n';
+}
+
+// Define function
+void reverse(int array[], const int size) {
+
+    // Purposefully leverage implicit conversion :)
+    int reps = size/2;
+
+    // Define our index
+    int l_ind {};
+
+    for (size_t i {}; i <= reps; ++i) {
+        int l_copy { array[l_ind] };    // Couldn't think of a way to NOT need a copy of one variable
+
+        // Swap left for right
+        //   r_ind = size-1 - l_ind
+        array[l_ind] = array[size-l_ind-1]; array[size-l_ind-1] = l_copy;
+
+        // Move indices inward by 1
+        ++l_ind;
+    }
+}
+
+#+end_src
