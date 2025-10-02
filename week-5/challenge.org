@@ -3,10 +3,6 @@
 #+property: header-args:cpp :noweb yes :comments noweb :results output
 #+property: header-args:python :noweb yes :comments noweb :results output
 
-* Notes
-** General
-** Questions
-** Thoughts/For Later
 * Canvas & Submission
 ** Pledge
 #+name: pledge
@@ -27,6 +23,17 @@ i.e.
 |1|2|3|2|1|
 
 Later, I realized I was wrong and corrected it.
+
+Interestingly, I seem to suffer the same issues here when analyzing programs as I do in Mathematics,
+some sort of dyslexic-type confusion. I'm glad to have this data, actually.
+
+---
+
+Otherwise, I renamed a bunch of variables in my solution of the problem, which was critiqued when I presented my solution.
+On reflection, I can see where this is a bit of a bad habit as a developer collaborating on a project and could be a big issue.
+I've collaborated on very little code, so this was a good insight.
+
+I'd like to see the final optimized solution, if possible?
 #+end_quote
 
 * Competitive Prog/Challenge
@@ -148,3 +155,7 @@ void reverse(int array[], const int size) {
 }
 
 #+end_src
+
+#+RESULTS: cpp_my_solution
+: 100 200 300 400 500
+: 500 400 300 200 100
