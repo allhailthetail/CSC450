@@ -47,3 +47,214 @@ for i in range(num_ints):
 for line in nums[::-1]:
     print(line)
 #+end_src
+
+* Kattis/Ofugsnuid Improved_bak
+
+[[https://open.kattis.com/problems/ofugsnuid][Link to Problem]]
+
+#+name: fn_printVecLines
+#+begin_src cpp
+// Description: Facilitates Efficient Printing of vec line-wise
+void printVecLines(std::vector<int> vec){
+    // it's more optimal to append a string 1\n2\n3\n... and print once.
+    std::string outputString {};
+
+    for (size_t index = 0; index < vec.size(); ++index) {
+        outputString.append(std::to_string(vec[index]));
+        outputString.push_back('\n');
+    }
+
+    // Print the string once:
+    std::cout << outputString;
+}
+#+end_src
+
+#+name: fn_reverseVec
+#+begin_src cpp
+// Description: Function prints reverse of supplied vec
+void reverseVec(std::vector<int>& vec){
+    // Grab vec.size(), it'll be used more than once
+    size_t vecSize = vec.size();
+
+    // leverage implicit conversion
+    int reps = vecSize / 2;
+
+    // Index value must persist across loops
+    //   Specifically, the left index
+    int index = 0;
+
+    for (size_t i {}; i < vecSize; ++i) {
+        int leftCopy = vec[index];
+
+        // Replace left value with right
+        vec[index] = vec[vecSize - index - 1];
+        // Replace Right with left's copy
+        vec[vecSize - index - 1] = leftCopy;
+
+        // Move indices inward by 1
+        ++index;
+    }
+}
+#+end_src
+
+#+name: ofugsnuid_cpp
+#+begin_src cpp :noexec :tangle src/ofugsnuid.cpp
+<<pledge>>
+
+#include <iostream>
+#include <vector>
+
+// reverseVec definition:
+void reverseVec(std::vector<int>&);
+
+// printVecLines definition:
+void printVecLines(std::vector<int>);
+
+int main(){
+    // Number of inputs user plans to send to vec
+    int numInputs {};
+    std::cin >> numInputs;
+
+    // Empty vec to hold values, set to appropriate size:
+    // Define size now for efficiency vs continually resizing it
+    //   with each entry:
+    std::vector<int> numberVec(numInputs);
+
+    for (size_t i = 0; i < numInputs; ++i){
+        std::cin >> numberVec[i];
+    }
+
+    // Call to our reversing func:
+    reverseVec(numberVec);
+
+    // Call to print the vector line-wise:
+    printVecLines(numberVec);
+
+    // Exit normally
+    return 0;
+}
+
+<<fn_reverseVec>>
+<<fn_printVecLines>>
+#+end_src
+
+#+RESULTS: ofugsnuid_cpp
+
+#+name: test_
+#+begin_src bash :results output
+g++ src/ofugsnuid.cpp -o src/ofugsnuid
+echo "3 10 12 9" | ./src/ofugsnuid
+rm src/ofugsnuid
+#+end_src
+
+#+RESULTS: test_
+
+* Kattis/Ofugsnuid Improved
+
+[[https://open.kattis.com/problems/ofugsnuid][Link to Problem]]
+
+I've tried everything I can think of and I can't optimize this better than 0.09 seconds.
+
+#+name: fn_printVecRev
+#+begin_src cpp
+// Description: Facilitates Efficient Printing of vec line-wise
+void printVecRev(std::vector<int> vec){
+    for (auto it = vec.rbegin(); it != vec.rend(); ++it) {
+        std::cout << *it << '\n';
+    }
+}
+#+end_src
+
+#+name: ofugsnuid_cpp
+#+begin_src cpp :noexec :tangle src/ofugsnuid_improved.cpp
+<<pledge>>
+
+#include <iostream>
+#include <vector>
+
+// printVecLines definition:
+void printVecRev(std::vector<int>);
+
+int main(){
+    // Number of inputs user plans to send to vec
+    int numInputs {};
+    std::cin >> numInputs;
+
+    // Empty vec to hold values, set to appropriate size:
+    // Define size now for efficiency vs continually resizing it
+    //   with each entry:
+    std::vector<int> numberVec(numInputs);
+
+    for (size_t i = 0; i < numInputs; ++i){
+        std::cin >> numberVec[i];
+    }
+
+    // Call to print the vector reversed line-wise:
+    printVecRev(numberVec);
+
+    // Exit normally
+    return 0;
+}
+
+<<fn_printVecRev>>
+#+end_src
+
+#+RESULTS: ofugsnuid_cpp
+
+#+name: test_new
+#+begin_src bash :results output
+g++ src/ofugsnuid_improved.cpp -o src/ofugsnuid_improved
+echo "3 10 12 9" | ./src/ofugsnuid_improved
+rm src/ofugsnuid_improved
+#+end_src
+
+#+RESULTS: test_new
+: 9
+: 12
+: 10
+
+#+name: ofugsnuid_rs
+#+begin_src rust :tangle src/ofugsnuid.rs
+use std::io::{self, BufRead};
+
+fn main() {
+    let stdin = io::stdin();
+    let handle = stdin.lock();
+
+    // Read the first line, which indicates the number of entries
+    let mut lines = handle.lines();
+    let num_inputs: usize = lines.next().unwrap().unwrap().parse().unwrap();
+
+    // Initialize a vector to hold the numbers
+    let mut number_vec: Vec<i32> = Vec::with_capacity(num_inputs);
+
+    // Read the following numbers
+    for _ in 0..num_inputs {
+        let line = lines.next().unwrap().unwrap();
+        let number: i32 = line.parse().unwrap();
+        number_vec.push(number);
+    }
+
+    // Reverse the vector
+    number_vec.reverse();
+
+    // Print each number in the reversed vector
+    for number in number_vec {
+        println!("{}", number);
+    }
+}
+#+end_src
+
+#+name: test_ofugsnuid_rs
+#+begin_src bash :results output
+rustc -o src/ofugsnuid_rs src/ofugsnuid.rs
+echo -e "5\n1\n2\n3\n4\n5\n" | ./src/ofugsnuid_rs
+rm src/ofugsnuid_rs
+#+end_src
+
+#+RESULTS: test_ofugsnuid_rs
+: 5
+: 4
+: 3
+: 2
+: 1

@@ -1,5 +1,5 @@
 # [[file:../lecture.org::ofugsnuid_py][ofugsnuid_py]]
-# [[file:lecture.org::ofugsnuid_py][pledge_py]]
+# [[file:lecture.org::pledge_py][pledge_py]]
 # Matthew Younger (pledged)
 # pledge_py ends here
 

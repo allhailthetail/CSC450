@@ -54,6 +54,8 @@ Observations:
 
 * Kattis/Telja
 
+NOTE: This solution runs in 0.01 sec on the Kattis platform, but I wanted to see if we could get it better (b/c trophies...)
+
 [[https://open.kattis.com/problems/telja][Link to Problem]]
 
 #+name: telja_cpp
@@ -98,6 +100,52 @@ Postmortem Python:
 n = int(input())
 [print(i+1) for i in range(0,n)]
 #+end_src
+
+* Kattis/Telja Improved?
+
+[[https://open.kattis.com/problems/telja][Link to Problem]]
+
+#+name: telja_cpp_new
+#+begin_src cpp :tangle src/telja_improved.cpp :results output
+<<pledge>>
+
+#include <iostream>
+
+int main() {
+    // Initialize empty number (user will specify)
+    int number {};
+
+    // perhaps it's more optimal to append a string 1\n2\n3\n... and print once?
+    std::string outputString {};
+
+    std::cin >> number;
+
+    for (size_t i = 1; i <= number; ++i) {
+        outputString.append(std::to_string(i));
+        outputString.push_back('\n');
+    }
+
+    // Print the string once at the very end:
+    std::cout << outputString;
+
+    // Exit normally.
+    return 0;
+}
+#+end_src
+
+#+name: test_telja_improved
+#+begin_src bash :results output
+g++ src/telja_improved.cpp -o src/telja_improved
+echo "5" | ./src/telja_improved
+rm src/telja_improved
+#+end_src
+
+#+RESULTS: test_telja_improved
+: 1
+: 2
+: 3
+: 4
+: 5
 
 * Kattis/Ovissa
 
