@@ -1,42 +1,75 @@
-// [[file:../lecture.org::ofugsnuid_cpp][ofugsnuid_cpp]]
-// [[file:lecture.org::ofugsnuid_cpp][pledge]]
+// [[file:../lecture.org::ofugsnuid_cpp_improved][ofugsnuid_cpp_improved]]
+// [[file:lecture.org::ofugsnuid_cpp_improved][pledge]]
 // Matthew Younger (pledged)
 // pledge ends here
 
 
 #include <iostream>
-#include <vector>
+#include <bits/stdc++.h>
 
-// printVecLines definition:
-void printVecRev(std::vector<int>);
+/*
+Pseudocode:
+
+ask for size (n number of nums to be received)
+allocate sizeof(int) * n byte block of memory
+
+fill IN REVERSE...
+
+cout normally i = 0, 1, 2...
+*/
 
 int main(){
-    // Number of inputs user plans to send to vec
-    int numInputs {};
-    std::cin >> numInputs;
 
-    // Empty vec to hold values, set to appropriate size:
-    // Define size now for efficiency vs continually resizing it
-    //   with each entry:
-    std::vector<int> numberVec(numInputs);
+    // Trying to gain some efficiency (ChatGPT)
+    // This alone seems to get the prog from 0.09 -> 0.03. BIG deal...
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
 
-    for (size_t i = 0; i < numInputs; ++i){
-        std::cin >> numberVec[i];
+    // ChatGPT also recommended:
+    static char outbuf[1 << 20];
+    std::cout.rdbuf()->pubsetbuf(outbuf, sizeof(outbuf));
+
+    // First, figure out the amount of memory we need to reserve for the numbers that will be received
+    int SIZE {};
+    std::cin >> SIZE;
+
+    // Now, we set aside n slots of memory
+    unsigned long long* numbers = nullptr;
+    numbers = new unsigned long long[SIZE]; // dynamically allocate memory...
+
+    // NOTE: AI recommended an interesting thing for this for loop...
+    //       It's not very readable, but I see what it's doing, and it seems neat...
+    // Decrementing for loop, because we're adding to the array BACKWARDS
+    // range of loop: [0,n)
+    for (int index = SIZE; index-- > 0;) {
+        // numbers[n]    Add to the array in this manner:
+        // numbers[n-1]
+        // ...
+        // numbers[0]
+        std::cin >> numbers[index];
     }
 
-    // Call to print the vector reversed line-wise:
-    printVecRev(numberVec);
+    // Now, we just need to print the values...
+    //for (int index = 0; index < SIZE; ++index) {
+    //    std::cout << numbers[index] << '\n';
+    //}
+
+    std::string buffer;
+    buffer.reserve(static_cast<size_t>(SIZE) * 12);  // ~= 10 digits + /n?
+
+    for(int i = 0; i < SIZE; ++i) {
+        buffer += std::to_string(numbers[i]);
+        buffer.push_back('\n');
+    }
+
+    // write all at once:
+    std::cout << buffer;
+
+    // ALWAYS free up the chunk of heap we borrowed...
+    delete [] numbers;
+    numbers = nullptr;
 
     // Exit normally
     return 0;
 }
-
-// [[file:lecture.org::fn_printVecRev][fn_printVecRev]]
-// Description: Facilitates Efficient Printing of vec line-wise
-void printVecRev(std::vector<int> vec){
-    for (auto it = vec.rbegin(); it != vec.rend(); ++it) {
-        std::cout << *it << '\n';
-    }
-}
-// fn_printVecRev ends here
-// ofugsnuid_cpp ends here
+// ofugsnuid_cpp_improved ends here

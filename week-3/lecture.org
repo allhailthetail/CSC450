@@ -139,6 +139,7 @@ int main(){
 #+end_src
 
 #+RESULTS: ofugsnuid_cpp
+: 4
 
 #+name: test_
 #+begin_src bash :results output
@@ -153,106 +154,96 @@ rm src/ofugsnuid
 
 [[https://open.kattis.com/problems/ofugsnuid][Link to Problem]]
 
-I've tried everything I can think of and I can't optimize this better than 0.09 seconds.
+I noticed an inconsistency in the problem.  It states that values could be up to 10bn, but this wouldn't be possible for
+int to hold that large of a number?
 
-#+name: fn_printVecRev
-#+begin_src cpp
-// Description: Facilitates Efficient Printing of vec line-wise
-void printVecRev(std::vector<int> vec){
-    for (auto it = vec.rbegin(); it != vec.rend(); ++it) {
-        std::cout << *it << '\n';
-    }
-}
+I've tried everything I can think of and I can't optimize this better than 0.09 seconds.
 #+end_src
 
-#+name: ofugsnuid_cpp
-#+begin_src cpp :noexec :tangle src/ofugsnuid_improved.cpp
+#+name: ofugsnuid_cpp_improved
+#+begin_src cpp :tangle src/ofugsnuid_improved.cpp :results output
 <<pledge>>
 
 #include <iostream>
-#include <vector>
+#include <bits/stdc++.h>
 
-// printVecLines definition:
-void printVecRev(std::vector<int>);
+/*
+Pseudocode:
+
+ask for size (n number of nums to be received)
+allocate sizeof(int) * n byte block of memory
+
+fill IN REVERSE...
+
+cout normally i = 0, 1, 2...
+,*/
 
 int main(){
-    // Number of inputs user plans to send to vec
-    int numInputs {};
-    std::cin >> numInputs;
 
-    // Empty vec to hold values, set to appropriate size:
-    // Define size now for efficiency vs continually resizing it
-    //   with each entry:
-    std::vector<int> numberVec(numInputs);
+    // Trying to gain some efficiency (ChatGPT)
+    // This alone seems to get the prog from 0.09 -> 0.03. BIG deal...
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
 
-    for (size_t i = 0; i < numInputs; ++i){
-        std::cin >> numberVec[i];
+    // ChatGPT also recommended:
+    static char outbuf[1 << 20];
+    std::cout.rdbuf()->pubsetbuf(outbuf, sizeof(outbuf));
+
+    // First, figure out the amount of memory we need to reserve for the numbers that will be received
+    int SIZE {};
+    std::cin >> SIZE;
+
+    // Now, we set aside n slots of memory
+    unsigned long long* numbers = nullptr;
+    numbers = new unsigned long long[SIZE]; // dynamically allocate memory...
+
+    // NOTE: AI recommended an interesting thing for this for loop...
+    //       It's not very readable, but I see what it's doing, and it seems neat...
+    // Decrementing for loop, because we're adding to the array BACKWARDS
+    // range of loop: [0,n)
+    for (int index = SIZE; index-- > 0;) {
+        // numbers[n]    Add to the array in this manner:
+        // numbers[n-1]
+        // ...
+        // numbers[0]
+        std::cin >> numbers[index];
     }
 
-    // Call to print the vector reversed line-wise:
-    printVecRev(numberVec);
+    // Now, we just need to print the values...
+    //for (int index = 0; index < SIZE; ++index) {
+    //    std::cout << numbers[index] << '\n';
+    //}
+
+    std::string buffer;
+    buffer.reserve(static_cast<size_t>(SIZE) * 12);  // ~= 10 digits + /n?
+
+    for(int i = 0; i < SIZE; ++i) {
+        buffer += std::to_string(numbers[i]);
+        buffer.push_back('\n');
+    }
+
+    // write all at once:
+    std::cout << buffer;
+
+    // ALWAYS free up the chunk of heap we borrowed...
+    delete [] numbers;
+    numbers = nullptr;
 
     // Exit normally
     return 0;
 }
-
-<<fn_printVecRev>>
 #+end_src
 
-#+RESULTS: ofugsnuid_cpp
+#+RESULTS: ofugsnuid_cpp_improved
 
-#+name: test_new
+#+name: test_ofugsnuid_improved
 #+begin_src bash :results output
 g++ src/ofugsnuid_improved.cpp -o src/ofugsnuid_improved
-echo "3 10 12 9" | ./src/ofugsnuid_improved
+echo "5 1 2 3 4 5" | ./src/ofugsnuid_improved
 rm src/ofugsnuid_improved
 #+end_src
 
-#+RESULTS: test_new
-: 9
-: 12
-: 10
-
-#+name: ofugsnuid_rs
-#+begin_src rust :tangle src/ofugsnuid.rs
-use std::io::{self, BufRead};
-
-fn main() {
-    let stdin = io::stdin();
-    let handle = stdin.lock();
-
-    // Read the first line, which indicates the number of entries
-    let mut lines = handle.lines();
-    let num_inputs: usize = lines.next().unwrap().unwrap().parse().unwrap();
-
-    // Initialize a vector to hold the numbers
-    let mut number_vec: Vec<i32> = Vec::with_capacity(num_inputs);
-
-    // Read the following numbers
-    for _ in 0..num_inputs {
-        let line = lines.next().unwrap().unwrap();
-        let number: i32 = line.parse().unwrap();
-        number_vec.push(number);
-    }
-
-    // Reverse the vector
-    number_vec.reverse();
-
-    // Print each number in the reversed vector
-    for number in number_vec {
-        println!("{}", number);
-    }
-}
-#+end_src
-
-#+name: test_ofugsnuid_rs
-#+begin_src bash :results output
-rustc -o src/ofugsnuid_rs src/ofugsnuid.rs
-echo -e "5\n1\n2\n3\n4\n5\n" | ./src/ofugsnuid_rs
-rm src/ofugsnuid_rs
-#+end_src
-
-#+RESULTS: test_ofugsnuid_rs
+#+RESULTS: test_ofugsnuid_improved
 : 5
 : 4
 : 3

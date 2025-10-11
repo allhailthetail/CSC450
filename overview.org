@@ -30,3 +30,39 @@ in a cooperative environment.
 
 Basically, just read something complicated and try to reverse-engineer it. Somehow do that
 but learn from it...  (There's not seemingly a whole lot of built offerings to do this)?
+
+* Pro Tips:
+** Header Guards
+
+- This will prevent you from accidentally causing huge issues when you define functions in a .h file:
+   #+begin_example cpp
+   #ifndef VF_H
+   #define VF_H
+   ...
+   #endif
+
+   #+end_example
+
+** Iterators:
+
+Iterators are pointers... BUT they follow your dynamic array around the computer's memory,
+because your pointer might change locations, because Vec does weird things under the hood
+as it shrinks and expands... So, this is how you address that...
+
+You want to use interators when you're writing C++ style code and avoid dropping down to
+the regular pointers (which are C-style) whenever possible...
+
+#+begin_example cpp
+void everyOther(const std::vector<int>& vec) {
+    std::vector<int> temp;
+    std::vector<int>::iterator it;
+    for (auto it=vec.cbegin(); it < vec.cend(); it+=2)
+        temp.push_back(*it);
+    return temp;
+}
+
+int first(const std::vector<int>& vec) {
+    int min = *vec.begin();  //value fo vec[0]
+
+}
+#+end_example

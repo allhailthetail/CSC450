@@ -1,5 +1,5 @@
 // [[file:../lecture.org::ofugsnuid_cpp][ofugsnuid_cpp]]
-// [[file:lecture.org::pledge][pledge]]
+// [[file:lecture.org::ofugsnuid_cpp][pledge]]
 // Matthew Younger (pledged)
 // pledge ends here
 
