@@ -1,0 +1,109 @@
+#+title: Average Character
+#+startup: indent overview hideblocks entitiespretty
+#+property: header-args:cpp :noweb yes :comments noweb :results output
+#+property: header-args:python :noweb yes :comments noweb :results output
+
+* Notes
+** General
+** Questions
+** Thoughts/For Later
+* Canvas & Submission
+** Pledge
+#+name: pledge
+#+begin_src cpp :noeval
+// Matthew Younger (pledged)
+#+end_src
+
+#+name: pledge_py
+#+begin_src python :noeval
+# Matthew Younger (pledged)
+#+end_src
+** Post-mortem and Feedback:
+#+begin_quote
+So, I think the detail I missed is that the input is ASCII [32, 126]:
+<space>
+<special chars...>
+numbers
+math...
+Up to ~ tilde...
+
+I used ~std::cin~ which will stop receiving input after it encounters a space.
+#+end_quote
+
+* Kattis/Average Character
+
+[[https://open.kattis.com/problems/averagecharacter][Link to Problem]]
+
+#+name: pseudocode_average_character
+#+begin_src cpp :noexec
+// recieve input from STDIN -> myStrig
+// for loop through myString, append ASCII value to an int
+// floor divide by the length of string
+// print character value
+// exit
+#+end_src
+
+#+name: cpp_average_character
+#+begin_src cpp :tangle src/average_character.cpp :results output
+<<pledge>>
+<<pseudocode_average_character>>
+
+#include <iostream>
+#include <string>
+
+int main() {
+    // Initialize empty string
+    std::string myString {};
+
+    // Gather input from user
+    std::getline(std::cin, myString);
+
+    // Fetches the string length
+    int stringLength = myString.length();
+
+    // Empty ascii sum for use in the for loop
+    int asciiSum = 0;
+    // Range-based is fine, don't care about indices of string
+    for (char character: myString) {
+        // Hold asciiValue temporarily (for readability, could remove for a marginal efficiency bump?)
+        int asciiValue = static_cast<unsigned int>(character);
+        // add asciiValue to persistent sum:
+        asciiSum += asciiValue;
+    }
+
+    // Find the average ascii value:
+    int asciiAverage = asciiSum / stringLength;
+
+    // DEBUG: Helper code
+    //std::cout << "Numerical Sum: " << asciiSum << '\n';
+    //std::cout << "Numerical Average: " << static_cast<char>(asciiAverage) << '\n';
+
+    // Output the resulting average character:
+    std::cout << static_cast<char>(asciiAverage) << '\n';
+
+    // Exit normally
+    return 0;
+}
+#+end_src
+
+#+RESULTS: cpp_average_character
+: Sum: 0
+
+#+name: test_
+#+begin_src bash :results output
+g++ src/average_character.cpp -o src/average_character
+echo "ABCDE" | ./src/average_character
+echo "AbCdE" | ./src/average_character
+echo "aBcDe" | ./src/average_character
+
+#Expecting: (32 + 65 + 65 + 70 + 75)/5 -> "="
+echo " AAFK" | ./src/average_character
+
+rm src/average_character
+#+end_src
+
+#+RESULTS: test_
+: C
+: O
+: V
+: =
