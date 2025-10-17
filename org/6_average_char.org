@@ -1,0 +1,218 @@
+#+startup: overview hideblocks indent entitiespretty:
+* [[https://open.kattis.com/problems/averagecharacter][Average Character (Easy 2.0]])
+
+** Problem
+
+Given a string of ASCII characters, compute the average character. If
+the average character lies between two integer ASCII values, return
+the smaller one.
+
+** Input 
+
+- Enter a single non-empty string on one line, max. 100 characters.
+- Sample input/output:
+  | ABCDE | C |
+  | AbCdE | O |
+  | aBcDe | V |
+
+** Constraints
+
+- All characters must be printable ASCII characters between 32 (' ')
+  and 126 (~).
+- No control characters such as carriage returns, line feeds, tabs
+  etc.
+- The string can begin, end, or contain only spaces.
+
+** Solution
+
+- Let's begin by checking the sample input/output with a simple
+  program that converts the string to ASCII numbers, computes the
+  average, and converts this number back to an ASCII character.
+
+  #+name: v1
+  #+begin_src C++ :main yes :includes <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    std::string s = "aBcDe"; // ABCD:C, AbCdE:O, aBcDe:V
+    int sum=0;
+    for (int i=0; i<s.size();i++)
+      {
+        int s_i = static_cast<int>(s[i]);
+        cout << s[i] << " " // print string by character
+    	 << s_i << endl; // print ASCII number
+        sum += s_i;
+      }
+    double avg = sum/s.size();
+    cout << "Average ASCII number: "     << avg << endl
+    << "Average ASCII character: "  << static_cast<char>(avg);
+  #+end_src
+
+  #+RESULTS: v1
+  : a 97
+  : B 66
+  : c 99
+  : D 68
+  : e 101
+  : Average ASCII number: 86
+  : Average ASCII character: V
+
+- This little program solves the three sample cases but it fails
+  whenever there is one or more empty space (ASCII 32) present. The
+  simplest solution for now: exclude these characters and rebuild the
+  string without empty spaces.
+
+  #+name: v2
+  #+begin_src C++ :main yes :includes <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    std::string s = " AB  CDE"; // ABCD:C, AbCdE:O, aBcDe:V
+    int sum=0;
+    int SIZE = s.size();
+    for (int i=0; i<s.size();i++)
+      {
+        int s_i = static_cast<int>(s[i]);
+        if (s_i != 32)
+          {
+    	cout << s[i] << " " // print string by character
+    	     << s_i << endl; // print ASCII number
+    	sum += s_i;
+          }
+        else
+          {
+    	SIZE--;
+          }
+      }
+    double avg = sum/SIZE;
+    cout << "Average ASCII number: "     << avg << endl
+    << "Average ASCII character: "  << static_cast<char>(avg);
+      #+end_src
+
+      #+RESULTS: v2
+      : A 65
+      : B 66
+      : C 67
+      : D 68
+      : E 69
+      : Average ASCII number: 67
+      : Average ASCII character: C
+
+- Now add the ability to get line input with ~getline~:
+  
+  #+name: v3
+  #+begin_src C++ :tangle ../src/averagecharacter.cpp :main yes :includes <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    std::string s;
+    getline(cin, s);
+    int sum=0;
+    int SIZE = s.size();
+    for (int i=0; i<s.size();i++)
+      {
+        int s_i = static_cast<int>(s[i]);
+        if (s_i != 32)
+          {
+    	cout << s[i] << " " // print string by character
+    	     << s_i << endl; // print ASCII number
+    	sum += s_i;
+          }
+        else
+          {
+    	SIZE--;
+          }
+      }
+    double avg = sum/SIZE;
+    cout << "Average ASCII number: "     << avg << endl
+    << "Average ASCII character: "  << static_cast<char>(avg);
+      #+end_src
+
+- Testing:
+  #+begin_src bash :results output :exports both
+    cd ../src
+    make averagecharacter
+    echo " AB CDE" | ./averagecharacter
+  #+end_src
+
+  #+RESULTS:
+  : make: 'averagecharacter' is up to date.
+  : A 65
+  : B 66
+  : C 67
+  : D 68
+  : E 69
+  : Average ASCII number: 67
+  : Average ASCII character: C
+
+- Submission with full header:
+  #+name: v4
+  #+begin_src C++ :results output :main no :includes :cmdline < ../data/input
+    #include <iostream>
+    #include <string>
+
+    int main()
+    {
+      std::string s;
+      getline(std::cin, s);
+      int sum=0;
+      int SIZE = s.size();
+      for (int i=0; i<s.size();i++)
+        {
+          int s_i = static_cast<int>(s[i]);
+          if (s_i != 32)
+    	{
+    	  sum += s_i;
+    	}
+          else
+    	{
+    	  SIZE--;
+    	}
+        }
+      double avg = sum/SIZE;
+      std::cout << static_cast<char>(avg);
+      return 0;
+    }
+  #+end_src  
+
+  #+RESULTS:
+  : C
+
+  Input file:
+  #+begin_src bash :results output :exports both
+    cd ../data
+    echo "ABCDE" > input
+    cat input
+  #+end_src
+
+  #+RESULTS:
+  : ABCDE
+  
+- Fails at the fifth test case with a run-time error: probably because
+  one of the strings results in a non-ASCII average. The lower of the
+  two neighbouring ASCII characters has to be chosen.
+
+- Realized that the integer division floors automatically - it rounds
+  down towards the smaller integer: 65/2 becomes 32 etc. This version
+  passes on Kattis:
+
+  #+name: https://open.kattis.com/submissions/18449281
+  #+begin_src C++ :results output :main no :includes :cmdline < ../data/input
+    #include <string>
+    int main()
+    {
+      std::string s;
+      std::getline(std::cin, s);
+      long sum = 0;
+      for (char c : s)
+        sum += static_cast<unsigned char>(c);
+      if (!s.empty())
+        {
+          int avg = sum / s.size(); // integer division floors automatically
+          std::cout << static_cast<char>(avg) << '\n';
+        }
+      return 0;
+    }
+  #+end_src  
+
+** Lessons learnt
+
+What I learnt:
+1) Use of ~static_cast~ with memory savings (~<unsigned char>~)
+2) Integer division floors automatically.
+3) Elegant use of range-based loops: you can loop over a ~string~ using
+   a ~char~ iterator.
+  
+  
+  
