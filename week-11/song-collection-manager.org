@@ -1,0 +1,108 @@
+#+title: Song Collection Manager
+#+author: Matthew Younger
+#+startup: indent overview hideblocks entitiespretty
+#+property: header-args:elisp :results silent
+#+PROPERTY: header-args:R :session *R* :results output
+#+property: header-args:python :noweb yes :comments noweb :results output
+#+property: header-args:cpp :noweb yes :comments noweb :results output
+#+property: header-args:sh :results silent
+
+* Elisp Helpers
+
+** Org Customizations
+#+name: helper - org-customizations
+#+begin_src elisp
+(+org-pretty-mode t)
+(flyspell-mode t)
+#+end_src
+
+** Create src Directory
+#+name: helper - create program source directory
+#+begin_src elisp
+;; Variables can be customized...
+(setq project-dir "src/")
+
+(let ((directory (concat (file-name-as-directory (file-name-directory (buffer-file-name))) project-dir)))
+  (make-directory project-dir t))
+(message "Created source directory: %s" project-dir)) ;; C-syntax for %s charcter string, nice...
+#+end_src
+
+** Project Cleanup
+#+begin_src elisp :results silent
+(defun +temp/cleanup-this-project ()
+  "Cleans up trivial/generated project files"
+  (interactive) ;; make this available with M-x
+  (+org/remove-result-blocks 0) ;; remove result blocks back to the beginning...
+  (delete-directory project-dir t)) ;; delete src directory
+  #+end_src
+
+* Canvas & Submission
+** Pledge
+#+name: pledge
+#+begin_src cpp :noeval
+// Matthew Younger (pledged)
+#+end_src
+
+#+name: pledge_py
+#+begin_src python :noeval
+# Matthew Younger (pledged)
+#+end_src
+
+#+name: pledge_R
+#+begin_src R :noeval
+# Mattthew Younger (pledged)
+#+end_src
+
+* Data Structures/Playlist Search
+#+name: playlist-search
+#+begin_src cpp :tangle src/playlist-search.cpp
+<<pledge>>
+#include <iostream>
+#include <vector>
+#include <string>
+
+int main() {
+  // Create a playlist with initial zongs
+  std::vector<std::string> playlist {"Rock Anthem", "Jazz Groove", "Pop Hit", "Blues Tune"};
+
+  // use iterators to print in forward order, displaying song and index
+  int index = 1;
+  std::cout << "Song Collection:" << '\n';
+  for (auto it = playlist.begin(); it < playlist.end(); it++) {
+    std::cout << index << ": " << *it << '\n';
+    index++;
+  }
+
+  std::cout << '\n'; // Line break
+
+  const std::string searchCondition { "Jazz Groove" };
+  bool resultFound = false;
+
+  // Iterate and over the playlist, mark bool true if found.
+  for(auto it = playlist.begin(); it != playlist.end(); it++) {
+    if (*it == searchCondition)
+      resultFound = true;
+  }
+
+  // Pretty print whether it was found or not (based on bool...)
+  if (resultFound == true) { std::cout << searchCondition << " is in the collection!" << '\n'; }
+  else { std::cout << searchCondition << " not found!" << '\n'; }
+
+  return 0; // Exit normally
+ }
+#+end_src
+
+* Compile and Run:
+#+property: header-args:sh :results output
+
+#+name: tangle project
+#+begin_src elisp
+(org-babel-tangle)
+#+end_src
+
+#+begin_src sh
+g++ src/playlist-search.cpp -o src/playlist-search
+
+echo "--- Song Playlist Search: --- \n"
+./src/playlist-search
+#+end_src

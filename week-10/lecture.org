@@ -1,0 +1,111 @@
+#+title: Lecture
+#+startup: indent overview hideblocks entitiespretty
+#+property: header-args:cpp :noweb yes :comments noweb :results output
+#+property: header-args:python :noweb yes :comments noweb :results output
+
+* Notes
+** General
+** Questions
+** Thoughts/For Later
+* Canvas & Submission
+** Pledge
+#+name: pledge
+#+begin_src cpp :noeval
+// Matthew Younger (pledged)
+#+end_src
+
+#+name: pledge_py
+#+begin_src python :noeval
+# Matthew Younger (pledged)
+#+end_src
+** Post-mortem and Feedback:
+#+begin_quote
+#+end_quote
+
+* Mystery Code/Player
+
+- Goal:
+  #+begin_quote
+  Explore the =<cstring>= library and re-write it as a C++ style string problem...
+  #+end_quote
+
+- links:
+  [[https://tinyurl.com/contact-info-h][ContactInfo.h]]
+  [[https://tinyurl.com/contact-info-test-cpp][ContactInfoTest.cpp]]
+
+#+name: ContactInfo.h
+#+begin_src cpp :noexec :main no :tangle src/ContactInfo.h :results output
+#ifndef CONTACTINFO_H
+#define CONTACTINFO_H
+#include <string>
+
+class ContactInfo {
+private:
+  std::string name;
+  std::string phone;
+public:
+  ContactInfo(const std::string& n, const std::string& p) {
+    name  = n;
+    phone = p;
+  }
+
+  // Setter
+  void setPhoneNumber(const std::string& newPhone) { phone = newPhone; }
+
+  // Destructor... Is this even needed? It dies when it goes out of scope...
+  // This could be left to use the default, or you can define some custom behavior.
+  // Regardless, C++ automagically destroys the strings and hands that memory back to the kernel, so
+  // doing this explicitly (while possible) isn't necessary.
+  // Actually, I don't think that's the case.  If so, why does the message print twice when the program runs?
+  //~ContactInfo() { std::cout << "Contact was destroyed..." << '\n'; }
+
+  const std::string& getName()        const { return name; }
+  const std::string& getPhoneNumber() const { return phone; }
+};
+
+#endif
+#+end_src
+
+#+begin_src cpp :noexec :tangle src/ContactInfoTest.cpp
+#include <iostream>
+#include "ContactInfo.h"          // you will rename this later
+using namespace std;
+
+int main() {
+  ContactInfo entry("Kristen Lee", "555-2021");
+  cout << "Name: " << entry.getName() << "\n"
+       << "Phone Number: " << entry.getPhoneNumber() << "\n";
+
+  // Space just for separation...
+  cout << '\n';
+
+  // Set a new phone number:
+  entry.setPhoneNumber("867-5309");
+
+  cout << "Name: " << entry.getName() << "\n"
+       << "Phone Number: " << entry.getPhoneNumber() << "\n";
+
+  // Why does "Contact was destroyed..." print twice?
+  //entry.~ContactInfo();
+
+  //cout << "Name: " << entry.getName() << "\n"
+       //<< "Phone Number: " << entry.getPhoneNumber() << "\n";
+
+  return 0;
+}
+#+end_src
+
+#+RESULTS:
+
+#+name: Compile and run improved contact info app
+#+begin_src bash :results output
+g++ src/ContactInfoTest.cpp -o src/contact-info-app
+./src/contact-info-app
+#+end_src
+
+#+RESULTS: Compile and run improved contact info app
+: Name: Kristen Lee
+: Phone Number: 555-2021
+:
+: Name: Kristen Lee
+: Phone Number: 867-5309
