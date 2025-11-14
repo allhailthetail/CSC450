@@ -52,6 +52,10 @@
 #+begin_src R :noeval
 # Mattthew Younger (pledged)
 #+end_src
+** What I learned:
+#+begin_quote
+
+#+end_quote
 
 * Data Structures/Playlist Search
 #+name: playlist-search
@@ -90,6 +94,28 @@ int main() {
 
   return 0; // Exit normally
  }
+#+end_src
+
+* Experimentation
+#+begin_src cpp :results output
+#include <iostream>
+#include <iterator>
+
+int main() {
+  //Placeholder Code
+
+  int myArr[] {2,4,6,8,10,12};
+
+  std::cout << *std::begin(myArr) << '\n';
+
+  for (auto it = std::begin(myArr); it != std::begin(myArr); it++) {
+    std::cout << "Element: " << *it << '\n';
+
+  }
+
+  return 0; // Exit normally
+}
+
 #+end_src
 
 * Compile and Run:

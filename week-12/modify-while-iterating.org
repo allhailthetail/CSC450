@@ -1,0 +1,365 @@
+#+TITLE: Modifying containers while iterating
+#+AUTHOR: Matthew Younger
+#+DATE: 2025-11-13
+
+#+STARTUP: indent overview hideblocks entitiespretty
+#+PROPERTY: header-args:elisp :results output
+#+PROPERTY: header-args:R :session *R* :results output
+#+PROPERTY: header-args:python :noweb yes :comments noweb :results output
+#+PROPERTY: header-args:cpp :noweb yes :comments noweb :results output
+#+PROPERTY: header-args:sh :results silent
+
+:ELISP-HELPERS:
+Org Customizations
+#+name: Emacs tweaks
+#+begin_src elisp
+(+org-pretty-mode t)
+(flyspell-mode 0)
+(org-mode-restart) ;; Ensures the headers get read if created from template.
+#+end_src
+
+Create src Directory
+#+name: Automatically create SRC directory
+#+begin_src elisp
+;; Variables can be customized...
+(setq project-dir "src/")
+
+(let ((directory (concat (file-name-as-directory (file-name-directory (buffer-file-name))) project-dir)))
+  (make-directory project-dir t))
+(message "Created source directory: %s" project-dir)) ;; C-syntax for %s charcter string, nice...
+#+end_src
+
+Project Cleanup
+#+name: Project Cleanup Interactive
+#+begin_src elisp :results silent
+(defun +temp/cleanup-this-project ()
+  "Cleans up trivial/generated project files"
+  (interactive) ;; make this available with M-x
+  (+org/remove-result-blocks 0) ;; remove result blocks back to the beginning...
+  (delete-directory project-dir t)) ;; delete src directory
+  #+end_src
+
+Tangle all files automatically
+#+name: Tangle All Blocks
+#+begin_src elisp
+;; It's nice if when calling org-babel-execute-buffer, that includes tangling all my files...
+(org-babel-tangle) ;; tangle everything as a last step...
+#+end_src
+
+:END:
+
+* Notes
+** Scratch...
+
+The main struggle seems to be understanding what I can put for copy_if's =pred= specification...
+Hm, references a function in a way I haven't seen before...
+
+[[https://cppreference.com/w/cpp/iterator/back_insert_iterator.html][std::back_insert_iterator]]
+
+#+name: Experimenting
+#+begin_src cpp :tangle src/scratch.cpp :flags "-std=c++20"
+//NOTE: idea comes from cppref...
+<<pledge>>
+
+#include <iostream>
+#include <iterator>
+#include <algorithm>
+#include <vector>
+
+// fn prototype for isEven:
+bool isEven(int) ;
+
+int main() {
+  // Create a vector of ints containing both even and odd integers:
+  std::vector<int> numbers {0,1,2,3,4,5,6,7,8,9,10};
+
+  // Create a new vector and empty vector
+  std::vector<int> evenNums;
+
+  // Create a special specifically for pushing to the back of a container.
+  // Super cool, link above, but it's basically calling push_back() any time the iterator is used.
+  std::back_insert_iterator<std::vector<int>> inserterPtr(evenNums);
+
+  std::cout << "size of numbers: " << numbers.size() << '\n';
+  std::cout << "size of evenNums: " << evenNums.size() << '\n';
+
+  std::cout << "\n" << '\n';
+
+  // This is a neat function... :D
+  // std::ranges::copy(numbers.begin(), numbers.begin() + 5, evenNums.begin());
+
+  // The cppreference docs use a lambda fn or something like:
+  // std::ranges::copy_if(numbers.begin(), numbers.end(), inserterPtr,
+  //                      [](int x) { return (x % 2) == 0; }); //lambda? never used...
+
+  std::ranges::copy_if(numbers.begin(), numbers.end(), inserterPtr, isEven); // calling my own function...`
+
+  // inserting a value manually:
+  // This is awesome...
+  inserterPtr = 100;
+
+  // Does not have the << operator defined for it...
+  // std::cout << "deref of inserterPtr: " << *inserterPtr << '\n';
+
+  // print what's in there...
+  for (int i: evenNums)
+    std::cout << i << '\n';
+
+  std::cout << "\n" << '\n';
+
+  std::cout << "size of numbers: " << numbers.size() << '\n';
+  std::cout << "size of evenNums: " << evenNums.size() << '\n';
+
+
+  return 0; // Exit normally
+}
+
+// Function to test T/F whether an int is even or not:
+bool isEven(const int n){
+  // even if mod 2 is 0, else false
+  if (n % 2 == 0) {
+    return true;
+  } else { return false; }
+}
+#+end_src
+
+* Canvas & Submission
+:PLEDGE:
+#+name: pledge
+#+begin_src cpp :noeval
+// Matthew Younger (pledged)
+#+end_src
+
+#+name: pledge_py
+#+begin_src python :noeval
+# Matthew Younger (pledged)
+#+end_src
+
+#+name: pledge_R
+#+begin_src R :noeval
+# Mattthew Younger (pledged)
+#+end_src
+:END:
+
+** Postmortem and Feedback:
+
+I thought this should work because I didn't know what I was doing. calling functions in this way is called a "function pointer", which we haven't covered yet...
+
+#+begin_example cpp
+  // There's a ton goiing on here:
+  //   1. iterators are given as fn params for 0,1 of copy_if
+  //   2. insertPtr is our special pointer that handles the push_back() logic automagically
+  //   4. is_even is the call? to the function defined in the scratch.
+  //      The logical negation allows it to be re-used rather than re-write a new fn. (trivial tho)...
+  std::ranges::copy_if(myNums.begin(), myNums.end(), insertPtr, !isEven);
+#+end_example
+
+* NO Programming Seminar/Iterate & Modify -- First attempt [failed]
+:HELPERS:
+#+name: Download and save src file:
+#+begin_src python :results output
+URL = ""
+OUTFILE = ""
+
+## Download and save:
+import requests
+result = requests.get(URL, timeout = 10)
+content = result.text
+with open(OUTFILE, 'w') as file:
+    file.write(content)
+    file.close()
+    #+end_src
+
+:END:
+
+Actually, this doesn't ~"return a modified vector"~ it actually makes a new one.
+
+#+name: iterate to new vec
+#+begin_src cpp :tangle src/iterate-to-new-vec.cpp :flags "-std=c++20"
+<<pledge>>
+
+#include <iostream>   // For stdout
+#include <iterator>   // Not sure I actually need this...
+#include <algorithm>  // For the special iterator...
+#include <vector>     // For dynamic arrays...
+
+// CHALLENGE: practice re-using previously designed code:
+//            !even -> odd
+// fn prototype for isEven:
+bool isOdd(int) ;
+
+int main() {
+
+  // Create a new vector with some values...
+  // I thought to take full advantage of single-line multi-assignment    TODO: check terminology
+  std::vector<int> myNums {1, 2, 2, 4, 5, 6, 101, 22}, oddNums;
+
+  // TRICK: Special iterator that C++20 defined just for appending containers:
+  std::back_insert_iterator<std::vector<int>> insertPtr(oddNums);
+
+  // There's a ton goiing on here:
+  //   1. iterators are given as fn params for 0,1 of copy_if
+  //   2. insertPtr is our special pointer that handles the push_back() logic automagically
+  //   4. is_even is the call? to the function defined in the scratch.
+  std::ranges::copy_if(myNums.begin(), myNums.end(), insertPtr, isOdd);
+
+  for (int num: oddNums)
+    std::cout << num << " ";
+
+  return 0; // Exit normally
+}
+
+// Function to test T/F whether an int is even or not:
+bool isOdd(const int n){
+  // even if mod 2 is 0, else false
+  if (n % 2 == 1) {
+    return true;
+  } else { return false; }
+}
+#+end_src
+
+* DONE Programming Seminar/Iterate & Modify -- Second attempt
+:HELPERS:
+#+name: Download and save src file:
+#+begin_src python :results output
+URL = ""
+OUTFILE = ""
+
+## Download and save:
+import requests
+result = requests.get(URL, timeout = 10)
+content = result.text
+with open(OUTFILE, 'w') as file:
+    file.write(content)
+    file.close()
+    #+end_src
+
+:END:
+
+The docs indicate that the return value of remove_if (which is a function) is ~"the subrange to be erased."~
+that part was tricky to figure out...
+
+[[https://cppreference.com/w/cpp/ranges.html][Ranges]] / subranges? are a new concept that are like iterators, but in one object have a beginning and an end... Honestly beyond me a bit, but I coerced it to work...
+#+name: iterate and modify program
+#+begin_src cpp :tangle src/iterate-and-modify.cpp :flags "-std=c++20"
+<<pledge>>
+
+#include <iostream>   // For stdout
+#include <algorithm>  // For the special iterator...
+#include <vector>     // For dynamic arrays...
+
+// fn prototype for isEven:
+bool isEven(int&);
+
+int main() {
+
+  // Create a new vector with some values...
+  std::vector<int> myNums {1, 2, 2, 4, 5, 6, 101, 22};
+
+  // There's a ton goiing on here:
+  //   1. iterators are given as fn params for 0,1 of copy_if
+  //   2. is_even is the ?function pointer? -`predicate' in remove_if
+  //   3. This needs to be saved to a variable...
+  // auto to_delete = std::ranges::remove_if(myNums, isEven);
+  std::ranges::subrange<std::vector<int>::iterator> to_delete =     // This was tough to figure out the type!!
+         std::ranges::remove_if(myNums, isEven);
+
+  //                                  x ->  END ]
+  // so, it's deleting from [O, O, O, E, E, ... ]
+  myNums.erase(to_delete.begin(), to_delete.end());
+
+  // Print out myNums' elements
+  for (int num: myNums)
+    std::cout << num << " ";
+
+  std::cout << '\n';
+
+  std::cout << "myNums length: " << myNums.size() << '\n';
+
+  return 0; // Exit normally
+}
+
+// Function to test T/F whether an int is even or not:
+// serves as the predicate for to_delete
+bool isEven(int& n){
+  // even if mod 2 is 0, else false
+  if (n % 2 == 0) {
+    return true;
+  } else { return false; }
+}
+#+end_src
+
+#+RESULTS: iterate and modify code
+
+* Programming Seminar/Iterate & Modify -- Third attempt
+:HELPERS:
+#+name: Download and save src file:
+#+begin_src python :results output
+URL = ""
+OUTFILE = ""
+
+## Download and save:
+import requests
+result = requests.get(URL, timeout = 10)
+content = result.text
+with open(OUTFILE, 'w') as file:
+    file.write(content)
+    file.close()
+    #+end_src
+
+:END:
+
+The docs indicate that the return value of remove_if (which is a function) is ~"the subrange to be erased."~
+that part was tricky to figure out...
+
+[[https://cppreference.com/w/cpp/ranges.html][Ranges]] / subranges? are a new concept that are like iterators, but in one object have a beginning and an end... Honestly beyond me a bit, but I coerced it to work...
+#+name: iterate and modify program
+#+begin_src cpp :tangle src/erase-if.cpp :flags "-std=c++20"
+<<pledge>>
+
+#include <iostream>   // For stdout
+#include <vector>     // For dynamic arrays...
+
+// fn prototype for isEven:
+bool isEven(const int);
+
+int main() {
+
+  // Create a new vector with some values...
+  std::vector<int> myNums {1, 2, 2, 4, 5, 6, 101, 22};
+
+  // Cleaner yet... erase_if is this non-member operator/function that accomplishes the task
+  std::erase_if(myNums, isEven);
+
+  // Print out myNums' elements
+  for (int num: myNums) std::cout << num << " ";
+
+  std::cout << '\n' << "myNums length: " << myNums.size() << '\n';
+
+  return 0; // Exit normally
+}
+
+// Function to test T/F whether an int is even or not:
+// serves as the predicate for to_delete
+bool isEven(const int n){
+  // even if mod 2 is 0, else false
+  return (n % 2 == 0);
+}
+#+end_src
+
+#+RESULTS: iterate and modify code
+
+* Compile and Run All
+#+PROPERTY: header-args:sh :results output
+
+#+name: run all programs
+#+begin_src sh
+g++ -g src/iterate-and-modify.cpp -o src/iterate-and-modify -std=c++20
+g++ -g src/erase-if.cpp -o src/erase-if -std=c++20
+
+echo "\n--- iterate-and-modify.cpp ---"
+./src/iterate-and-modify
+
+echo "\n--- erase-if.cpp ---"
+./src/erase-if
+#+end_src
