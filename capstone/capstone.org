@@ -1,0 +1,303 @@
+#+TITLE: Interstellar Archivist (Capstone)
+#+AUTHOR: Matthew Younger
+#+DATE: 2025-11-28
+
+#+STARTUP: indent overview hideblocks entitiespretty
+#+PROPERTY: header-args:elisp :results output
+#+PROPERTY: header-args:cpp :noweb yes :comments noweb :results output
+
+:ELISP-HELPERS:
+Org Customizations
+#+name: Emacs tweaks
+#+begin_src elisp
+(+org-pretty-mode t)
+(flyspell-mode 0)
+(org-mode-restart) ;; Ensures the headers get read if created from template.
+#+end_src
+
+Create src Directory
+#+name: Automatically create SRC directory
+#+begin_src elisp
+;; Variables can be customized...
+(setq project-dir "src/")
+
+(let ((directory (concat (file-name-as-directory (file-name-directory (buffer-file-name))) project-dir)))
+  (make-directory project-dir t))
+(message "Created source directory: %s" project-dir)) ;; C-syntax for %s charcter string, nice...
+#+end_src
+
+Project Cleanup
+#+name: Project Cleanup Interactive
+#+begin_src elisp :results silent
+(defun +temp/cleanup-this-project ()
+  "Cleans up trivial/generated project files"
+  (interactive) ;; make this available with M-x
+  (+org/remove-result-blocks 0) ;; remove result blocks back to the beginning...
+  (delete-directory project-dir t)) ;; delete src directory
+  #+end_src
+
+Tangle all files automatically
+#+name: Tangle All Blocks
+#+begin_src elisp
+;; It's nice if when calling org-babel-execute-buffer, that includes tangling all my files...
+(org-babel-tangle) ;; tangle everything as a last step...
+#+end_src
+
+:END:
+
+* Notes
+** General
+:LOGBOOK:
+CLOCK: [2025-11-28 Fri 08:32]
+:END:
+- Grading Rubric:
+  #+begin_quote
+  1. [X] Classes: You must define a class (e.g., class Book) that encapsulates the title and handles the cleaning logic internally.
+  2. [X] Vectors: You must use std::vector to store the collection of books.
+  3. [X] Standard Algorithms:
+     - Use std::reverse (or valid iterator logic) for the inversion.
+     - Use the "Erase-Remove" idiom (e.g., vector.erase combined with std::remove_if) to filter out
+     - the invalid "Noise" entries.
+  4. [X] Iterators: Use iterators when printing the final list.
+  5. [X] Clean Code: No global variables; use std::string instead of C-strings.
+  #+end_quote
+
+- Reversed String:
+  #+begin_quote
+  ^rettoP yrraH becomes Harry Potter.
+  #+end_quote
+
+- Remove ~_~ (replace with NA)
+  #+begin_quote
+  The_Great_Gatsby_ becomes TheGreatGatsby.
+  #+end_quote
+
+- Average character
+  If the average of the ASCII values of the entries is > a-z or A-Z, it's noise...
+** Questions
+** Thoughts/For Later
+* Canvas & Submission
+:PLEDGE:
+#+name: pledge
+#+begin_src cpp :noeval
+// Matthew Younger (pledged)
+#+end_src
+
+#+name: pledge_py
+#+begin_src python :noeval
+# Matthew Younger (pledged)
+#+end_src
+
+#+name: pledge_R
+#+begin_src R :noeval
+# Mattthew Younger (pledged)
+#+end_src
+:END:
+
+** Postmortem and Feedback:
+#+begin_quote
+I realized once again that pointers are tricky. Vectors are tricky, more like.  It's very easy to forget they move in memory.
+My nice clean idea of having an iterator decleared in main and re-using it for this vector bombed as soon as vector was resized and moved ~segfault~...
+
+I thought to use the "this->" pointer, which I don't know if we've seen since summer... We've used ->, but I don't recall using this->
+#+end_quote
+
+* R Ascii Values Analysis
+#+begin_src R :results file graphics :file src/ascii_plot.png
+lowercase <- 'abcdefghijklmnopqrstuvwxyz'
+uppercase <- 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+combined <- paste0(lowercase, uppercase)
+
+sapply(strsplit(lowercase, NULL)[[1L]], utf8ToInt) -> ascii_lowercase
+sapply(strsplit(uppercase, NULL)[[1L]], utf8ToInt) -> ascii_uppercase
+sapply(strsplit(combined, NULL)[[1L]], utf8ToInt) -> ascii
+
+boxplot(ascii_uppercase, ascii, ascii_lowercase,
+        names = c('A-Z', 'A-z', 'a-z'), axes = TRUE)
+title("Boxplot of ASCII Values")
+abline(h = max(ascii_uppercase), col = 'blue', lty = 'dashed')
+abline(h = min(ascii_lowercase), col = 'red', lty = 'dashed')
+#+end_src
+
+#+begin_src R
+min(ascii)
+max(ascii)
+#+end_src
+
+* Sample Inputs:
+#+begin_src bash :tangle src/input_data.txt
+8
+The_Mystery_of_404!
+^sngiseD_++C
+The_Great_Gatsby_
+Once_Upon_a_Time_in_2020!
+^secneicS_cimsoC_
+123_Adventures_in_Code!
+!!!!!!!!!!
+~~~~~~~~~~~~~~~~~~~
+#+end_src
+
+* Programming Seminar/Archivist
+#+name: Book header
+#+begin_src cpp :tangle src/Book.h :main no
+#ifndef BOOK_H
+#define BOOK_H
+#include <vector>
+#include <algorithm>
+#include <string>
+
+struct Book {
+  std::string Title {};
+  bool gibberish { false };  // Assume is not gibberish by default
+
+  // Constructor - Sets Title:
+  Book(std::string Title) {
+    this->Title = Title;
+  }
+
+  // Method 1: reverse if necessary
+  Book& checkReverseTitle() {
+    if (Title.at(0) == '^') {
+      Title.erase(Title.begin());                // erase '^' as first order of business
+      std::reverse(Title.begin(), Title.end());  // Reverse the remaining...
+    }
+
+    // Return current object to enable chaining
+    return *this;
+  }
+
+  // Method 2: remove underscore if found:
+  Book& checkRemoveUnderscores() {
+    Title.erase(std::remove(Title.begin(),  // I thought this was the cleanest way to indent this... ?
+                            Title.end(),
+                            '_'),
+                Title.end());  // Makes this clear this bit is part of erase(), not remove()?
+
+    // Return current object to enable chaining
+    return *this;
+  }
+
+  // TODO: Method 3: bool flag - delete if gibberish...
+  Book& checkIsGibberish() {
+    // collect sum of ascii values of books,
+    //   kick out if 122 < mean < 65
+    const int min = 65;
+    const int max = 122;
+
+    // Holds sum of ascii values
+    long int asciiSum = 0;
+    for (auto chr: Title) {
+      asciiSum += int(chr);        // Cast char to int
+    }
+
+    int mean = asciiSum / Title.length();
+    // std::cout << "DEBUG -- title: " << Title << " -- mean: " << mean << '\n';
+
+
+    if (mean < min || max < mean) {  // Evals to true if outside tolerance
+      //DEBUG: Warn if gibberish
+      // std::cout << "DEBUG - Gibberish detected: " << asciiSum << '\n';
+      gibberish = true;  // Mark as gibberish
+      return *this;
+    }
+    gibberish = false;   // For safety, in case class changes?
+
+    // Return current object to enable chaining
+    return *this;
+  }
+};
+#endif
+#+end_src
+
+#+name: Main Program
+#+begin_src cpp :tangle src/main.cpp :flags "-I src/"
+<<pledge>>
+#include <iostream>
+#include <algorithm>
+#include "Book.h"
+
+ // !!Checksum method over bookVec:
+ //   sum of lengths of all valid titles:
+int checksum(std::vector<Book> &bookVec) {
+  // Checksum starts at zero...
+  long int chksum = 0;
+
+  // Define begin and end interators
+  std::vector<Book>::iterator it = bookVec.begin(), end = bookVec.end();
+
+  while (it != end) {
+    chksum += it->Title.length();  // Add up the lengths
+    ++it;
+  }
+
+  return chksum;
+}
+
+int main() {
+  // Create Empty vector of Books
+  std::vector<Book> bookVec {};
+  // std::cout << "Created bookVec" << '\n';
+
+  // Grab "N" n-number of lines to receive from the user:
+  int n = 0;
+  std::cout << "Number of lines to receive: ";
+  std::cin >> n;
+  std::cout << '\n' << "Ready to receive "<< n << " books..." << '\n';
+
+  // Blank book title for cin:
+  std::string bookTitle {};
+  // Read strings from STDIN and append vector (default constructor of Book)
+  for (int i = 0; i < n; i++) {
+    std::cin >> bookTitle;  // Receive the book from cin
+    bookVec.push_back(Book(bookTitle)); // Initialize a new Book object and store to vector
+  }
+
+  // Print the original titles as received:
+  std::cout << "\nProgram received:" << '\n';
+  for(std::vector<Book>::iterator it = bookVec.begin(); it != bookVec.end(); it++) {
+    std::cout << it->Title << '\n';
+  }
+
+  // Correct the titles using method chaining:
+  for (auto &book: bookVec) {
+    book.checkReverseTitle().checkRemoveUnderscores().checkIsGibberish();
+  }
+
+  // Delete if gibberish
+  {
+    // Multi-value single assign two iterators...
+    std::vector<Book>::iterator begin = bookVec.begin(), end = bookVec.end();
+    bookVec.erase(std::remove_if(begin,
+                              end,
+                              [](const Book& book) { return book.gibberish; }),  // Erase if was marked as gibberish.
+                  bookVec.end()
+                  );
+  }
+
+  // Print the corrected titles:
+  std::cout << "\nTitle has been corrected to:" << '\n';
+  for(std::vector<Book>::iterator it = bookVec.begin(); it != bookVec.end(); it++) {
+    std::cout << it->Title << '\n';
+  }
+
+  // Calculate checksum:
+  std::cout << "\nChecksum: " << checksum(bookVec) << '\n';
+
+  return 0; // Exit normally
+}
+#+end_src
+
+#+RESULTS: Some Program
+
+* Compile and Run All
+#+PROPERTY: header-args:sh :results output
+
+
+#+name: run all programs
+#+begin_src sh
+# Compile-only the two necessary fils
+g++ src/main.cpp -o src/app
+
+# Run the app with test input:
+/usr/bin/cat src/input_data.txt | ./src/app
+#+end_src
