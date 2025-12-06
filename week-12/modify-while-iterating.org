@@ -179,8 +179,8 @@ Actually, this doesn't ~"return a modified vector"~ it actually makes a new one.
 <<pledge>>
 
 #include <iostream>   // For stdout
-#include <iterator>   // Not sure I actually need this...
-#include <algorithm>  // For the special iterator...
+#include <iterator>   // For the special iterator...
+#include <algorithm>  // Not sure I actually need this...
 #include <vector>     // For dynamic arrays...
 
 // CHALLENGE: practice re-using previously designed code:
@@ -197,7 +197,7 @@ int main() {
   // TRICK: Special iterator that C++20 defined just for appending containers:
   std::back_insert_iterator<std::vector<int>> insertPtr(oddNums);
 
-  // There's a ton goiing on here:
+  // There's a ton going on here:
   //   1. iterators are given as fn params for 0,1 of copy_if
   //   2. insertPtr is our special pointer that handles the push_back() logic automagically
   //   4. is_even is the call? to the function defined in the scratch.
@@ -309,10 +309,8 @@ with open(OUTFILE, 'w') as file:
 
 :END:
 
-The docs indicate that the return value of remove_if (which is a function) is ~"the subrange to be erased."~
-that part was tricky to figure out...
+[[https://cppreference.com/w/cpp/container/vector/erase2.html][erase_if]] seems to be the cleanest way to do this, though I think the subranges one is more adaptable.
 
-[[https://cppreference.com/w/cpp/ranges.html][Ranges]] / subranges? are a new concept that are like iterators, but in one object have a beginning and an end... Honestly beyond me a bit, but I coerced it to work...
 #+name: iterate and modify program
 #+begin_src cpp :tangle src/erase-if.cpp :flags "-std=c++20"
 <<pledge>>
@@ -346,6 +344,10 @@ bool isEven(const int n){
   return (n % 2 == 0);
 }
 #+end_src
+
+#+RESULTS: iterate and modify program
+: 1 5 101
+: myNums length: 3
 
 #+RESULTS: iterate and modify code
 
