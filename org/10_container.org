@@ -1,0 +1,228 @@
+#+TITLE: Modifying containers while iterating
+#+AUTHOR: Marcus Birkenkrahe (pledged)
+#+SUBTITLE: CSC 450 Programming Seminar (Lyon College Fall 2025)
+#+STARTUP: overview hideblocks indent entitiespretty:
+#+OPTIONS: toc:nil num:nil ^:nil: 
+* The Problem: Modifying containers while iterating
+
+- Here is a surprisingly hard problem: Removing even numbers from an
+  integer vector. It's easy just printing the non-even elements but
+  it's not easy to remove them if the number of even elements (and
+  hence the size of the resulting array) is not known beforehand. So
+  in C you have to manage memory yourself and pass through the array
+  twice.
+
+  Solution that just prints the non-even elements:
+  #+begin_src C++ :main yes :includes <iostream> :namespaces std :results output :exports both
+    const int SIZE = 8;
+    int arr[SIZE] {1,2,2,4,5,6,101,22};
+    for(int i=0;i<SIZE;i++)
+      {
+        if(arr[i]%2==0)
+          continue;
+        else
+          cout << arr[i] << " ";
+      }
+  #+end_src
+
+  #+RESULTS:
+  : 1 5 101
+
+  Solution that computes the new logical size:
+  #+begin_src C++ :main yes :includes <iostream> :namespaces std :results output :exports both
+    const int SIZE = 8;
+    int arr[SIZE] {1,2,2,4,5,6,101,22};
+    int j = 0; // logical size of the new array
+    for(int i=0; i<SIZE; i++)
+      {
+        if( arr[i]%2 != 0)
+          arr[j++] = arr[i];
+      }
+    for(int i=0; i<j; i++)
+      cout << arr[i] << " ";
+  #+end_src
+
+  #+RESULTS:
+  : 1 5 101
+
+- *Task*: Write a function that removes all even numbers from a ~vector<int>~
+  and returns the modified vector. Show that it works.
+
+- *Sample input/output:* first line is the input vector, second line the
+  output vector.
+  #+begin_example
+  1 2 2 4 5 6 101 22
+  1 5 101
+  #+end_example
+  
+* Solution:
+
+This is my original solution path - not necessarily the cleverest or
+best but I was trying. 
+
+1) Make sure that the even numbers are recognized. The following
+   program prints a =!= every time the iterator points at an even
+   element.
+
+   #+begin_src C++ :main no :includes :results output :exports both
+     #include <iostream>
+     #include <vector>
+     using namespace std;
+
+     int main()
+     {
+       vector<int> v {1,2,2,4,5,6,101,22};
+
+       for (auto it=v.begin(); it!=v.end();it++)
+         {
+           if (*it % 2 == 0) cout << "!";
+           cout << (*it) << " ";
+         }
+       return 0;
+     }
+   #+end_src
+
+   #+RESULTS:
+   : 1 !2 !2 !4 5 !6 101 !22
+
+2) Now I would simply us the ~erase(it~) function but that does not
+   work ("Segmentation fault") because if you're modifying the
+   vector while iterating, you break the iterator. =erase(it)= erases
+   the current element and returns a new valid iterator but in the
+   loop, =it++= then passes that element, and ultimately points at a
+   non-existing element (hence the error).
+
+   #+begin_src C++ :main no :includes :results none :exports both
+     #include <iostream>
+     #include <vector>
+     using namespace std;
+
+     int main()
+     {
+       vector<int> v {1,2,2,4,5,6,101,22};
+
+       for (auto it=v.begin(); it!=v.end();it++)
+         {
+           if (*it % 2 == 0) v.erase(it);
+           cout << (*it) << " ";
+         }
+       return 0;
+     }
+   #+end_src
+
+   I am not showing the results here because they destroy the
+   rendering of Org-mode files to Markdown in GitHub. They're weird
+   characters.
+
+3) When an element is erased, the iterator =it= needs to be rebuilt
+   using ~erase~. If the element is passed over, this is not
+   necessary.
+
+   #+begin_src C++ :main no :includes :results output :exports both
+     #include <iostream>
+     #include <vector>
+     using namespace std;
+
+     int main()
+     {
+       vector<int> v {1,2,2,4,5,6,101,22};
+
+       for (vector<int>::iterator it = v.begin(); it != v.end();)
+         {
+           if (*it % 2 == 0)
+        it = v.erase(it);
+           else
+        ++it;
+         }
+       for(auto it=v.begin();it!=v.end();it++)
+         cout << (*it) << " ";
+       return 0;
+     }
+   #+end_src
+
+   #+RESULTS:
+   : 1 5 101
+
+4) Move the operation into a function =removeEven=.
+
+   #+begin_src C++ :main no :includes :results output :exports both
+     #include <iostream>
+     #include <vector>
+     using namespace std;
+
+     void removeEven(vector<int>& v)
+     {
+       for (vector<int>::iterator it = v.begin(); it != v.end();)
+         {
+           if (*it % 2 == 0)
+        it = v.erase(it);
+           else
+        ++it;
+         }
+     }
+
+     void printVector(const vector<int>& v)
+     {
+       cout << endl;
+       for(auto it=v.begin();it!=v.end();it++)
+         cout << (*it) << " ";
+     }
+
+     int main()
+     {
+       vector<int> vec {1,2,2,4,5,6,101,22};
+       printVector(vec);
+       removeEven(vec);
+       printVector(vec);
+       return 0;
+     }
+   #+end_src
+
+   #+RESULTS:
+   :
+   : 1 2 2 4 5 6 101 22
+   : 1 5 101
+
+5) Simplify the solution with ~erase(first, last)~ and
+   ~remove_if(first,last,value)~. This reorders a container so that
+   unwanted elements are moved to the end, and then returns an
+   iterator to the new logical end. So the elements are being
+   shuffled before ~erase~ is applied. The ~value~ is a *lambda*
+   ("anonymous" inline) function. This is generally faster and
+   safer.
+
+   #+begin_src C++ :main no :includes :results output :exports both
+     #include <iostream>  // for cout
+     #include <vector>    // for vector, erase
+     #include <algorithm> // for remove_if
+     using namespace std;
+
+     void removeEven(vector<int>& v)
+     {
+       v.erase(remove_if(v.begin(),
+                         v.end(),
+                         [](int x){ return x % 2 == 0; }),
+               v.end());
+     }
+
+     void printVector(const vector<int> v)
+     {
+       cout << endl;
+       for(auto it=v.begin();it!=v.end();it++)
+         cout << (*it) << " ";
+     }
+
+     int main()
+     {
+       vector<int> vec {1,2,2,4,5,6,101,22};
+       printVector(vec);
+       removeEven(vec);
+       printVector(vec);
+       return 0;
+     }
+   #+end_src
+
+   #+RESULTS:
+   :
+   : 1 2 2 4 5 6 101 22
+   : 1 5 101
