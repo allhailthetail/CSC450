@@ -47,9 +47,6 @@ Tangle all files automatically
 
 * Notes
 ** General
-:LOGBOOK:
-CLOCK: [2025-11-28 Fri 08:32]
-:END:
 - Grading Rubric:
   #+begin_quote
   1. [X] Classes: You must define a class (e.g., class Book) that encapsulates the title and handles the cleaning logic internally.
@@ -79,16 +76,6 @@ CLOCK: [2025-11-28 Fri 08:32]
 #+name: pledge
 #+begin_src cpp :noeval
 // Matthew Younger (pledged)
-#+end_src
-
-#+name: pledge_py
-#+begin_src python :noeval
-# Matthew Younger (pledged)
-#+end_src
-
-#+name: pledge_R
-#+begin_src R :noeval
-# Mattthew Younger (pledged)
 #+end_src
 :END:
 
@@ -134,6 +121,7 @@ Once_Upon_a_Time_in_2020!
 #+end_src
 
 * Programming Seminar/Archivist
+** Header
 #+name: Book header
 #+begin_src cpp :tangle src/Book.h :main no
 #ifndef BOOK_H
@@ -205,6 +193,7 @@ struct Book {
 #endif
 #+end_src
 
+** Program
 #+name: Main Program
 #+begin_src cpp :tangle src/main.cpp :flags "-I src/"
 <<pledge>>
@@ -283,9 +272,7 @@ int main() {
 }
 #+end_src
 
-#+RESULTS: Some Program
-
-* Compile and Run All
+** Compile and Run
 #+PROPERTY: header-args:sh :results output
 
 #+name: run all programs
