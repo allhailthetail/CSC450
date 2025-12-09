@@ -74,8 +74,6 @@ CLOCK: [2025-11-28 Fri 08:32]
 
 - Average character
   If the average of the ASCII values of the entries is > a-z or A-Z, it's noise...
-** Questions
-** Thoughts/For Later
 * Canvas & Submission
 :PLEDGE:
 #+name: pledge
@@ -133,8 +131,6 @@ The_Great_Gatsby_
 Once_Upon_a_Time_in_2020!
 ^secneicS_cimsoC_
 123_Adventures_in_Code!
-!!!!!!!!!!
-~~~~~~~~~~~~~~~~~~~
 #+end_src
 
 * Programming Seminar/Archivist
@@ -291,7 +287,6 @@ int main() {
 
 * Compile and Run All
 #+PROPERTY: header-args:sh :results output
-
 
 #+name: run all programs
 #+begin_src sh
