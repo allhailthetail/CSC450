@@ -1,0 +1,194 @@
+#+TITLE: Upprodun
+#+AUTHOR: Matthew Younger
+#+DATE: 2025-12-18
+
+#+STARTUP: indent overview hideblocks entitiespretty
+#+PROPERTY: header-args:elisp :results output
+#+PROPERTY: header-args:cpp :noweb yes :comments noweb :results output
+#+PROPERTY: header-args:sh :results silent
+
+:ELISP-HELPERS:
+Org Customizations
+#+name: Emacs tweaks
+#+begin_src elisp
+(+org-pretty-mode t)
+(flyspell-mode 0)
+(org-mode-restart) ;; Ensures the headers get read if created from template.
+#+end_src
+
+Create src Directory
+#+name: Automatically create SRC directory
+#+begin_src elisp
+;; Variables can be customized...
+(setq project-dir "src/")
+
+(let ((directory (concat (file-name-as-directory (file-name-directory (buffer-file-name))) project-dir)))
+  (make-directory project-dir t))
+(message "Created source directory: %s" project-dir)) ;; C-syntax for %s charcter string, nice...
+#+end_src
+
+Project Cleanup
+#+name: Project Cleanup Interactive
+#+begin_src elisp :results silent
+(defun +temp/cleanup-this-project ()
+  "Cleans up trivial/generated project files"
+  (interactive) ;; make this available with M-x
+  (+org/remove-result-blocks 0) ;; remove result blocks back to the beginning...
+  (delete-directory project-dir t)) ;; delete src directory
+  #+end_src
+
+Tangle all files automatically
+#+name: Tangle All Blocks
+#+begin_src elisp
+;; It's nice if when calling org-babel-execute-buffer, that includes tangling all my files...
+(org-babel-tangle) ;; tangle everything as a last step...
+#+end_src
+
+:END:
+
+* Notes
+** General
+- [[https://open.kattis.com/problems/upprodun][Link to Kattis Problem]]
+
+- Proposed solution:
+  I think maybe I can just use the division algorithm as so:
+  #+begin_quote
+  # Division algorithm:
+  a = bq + r
+  b|a...
+
+  # Sample Input 3:
+  N = 5
+  M = 33
+
+  Using the division algorithm:
+  M = Nq + r
+  33 = 5*6 + 3   => 6 per room, 3 left to be divided evenly...
+
+  fn populateRooms(&numPeople = M, CONST numRooms = N):
+
+      peoplePerRoom = floor divide numPeople(33) by numRooms(5) = 6
+      numPeople -= numRooms * peoplePerRoom
+
+      vector Rooms(3,6) #load up something like this...
+
+      # for remainder:
+      while (numPeople > 0) {
+          Rooms.at(numPeople) ++  # Adds to room 3, then 2, then 1...
+      }
+
+      return Rooms
+
+  #+end_quote
+** Questions
+
+* Canvas & Submission
+:PLEDGE:
+#+name: pledge
+#+begin_src cpp :noeval
+// Matthew Younger (pledged)
+#+end_src
+
+** Postmortem and Feedback:
+#+begin_quote
+#+end_quote
+
+* Kattis/Upprodun
+:HELPERS:
+#+name: Download and save src file:
+#+begin_src python :results output
+URL = ""
+OUTFILE = ""
+
+## Download and save:
+import requests
+result = requests.get(URL, timeout = 10)
+content = result.text
+with open(OUTFILE, 'w') as file:
+    file.write(content)
+    file.close()
+    #+end_src
+
+:END:
+
+#+name: Upprodun
+#+begin_src cpp :tangle src/upprodun.cpp
+<<pledge>>
+
+#include <vector>
+#include <string>
+#include <iostream>
+
+// fn prototype for populating rooms
+std::vector<std::string> populateRooms(int&, const int);
+
+int main() {
+
+  int N {}; // Var holds number of classrooms
+  int M {}; // Var holds number of People
+
+  // Take input from the Kattis judge app:
+  std::cin >> N;
+  std::cin >> M;
+
+  // Construct classrooms vector:
+  auto Rooms = populateRooms(M, N);
+
+  // Output each room in Rooms as a line of *'s:
+  for (std::string room: Rooms) {
+    std::cout << room << '\n';
+  }
+
+  // Courteously flush the buffer... (good practice)
+  std::cout << std::endl;
+
+  // Exit normally
+  return 0;
+}
+
+std::vector<std::string> populateRooms(int& headCount, const int numRooms) {
+  /*
+  ,Description: populateRooms function:
+  ,takes in a reference to headCount (so it can be changed), and numRooms (expressly not to change)
+  ,Returns a vector that has the strings with asterisks * for each student.
+  ,*/
+
+  // floor division: how many people can fit evenly in each room?
+  int numPeople_evenly = headCount/numRooms;
+  // Decrement headCount by total# people who now are evenly divided into rooms:
+  headCount -= numPeople_evenly * numRooms;
+
+  // Construct a string with ***... appropriate number of *'s
+  // for num people can fit evenly in the rooms:
+  std::string numPeople_str(numPeople_evenly, '*');
+
+  // Construct a vector Rooms of N numRooms, default contains numPeopleStr people per room...
+  std::vector<std::string> Rooms (numRooms, numPeople_str);
+
+  // Finish populating the odd number of people if needed:
+  // NOTE: this should always be safe, since the remainder is always less than numRooms...
+  while (headCount > 0) {
+    // Careful to consider that rooms starts at 0:
+    //   So, this is essentially roomIndex working backwards until there's none left.
+    //   at -> reference to STRING... use push_back()
+    Rooms.at(headCount-1).push_back('*');
+
+    // Decrement (remaining) headCount
+    headCount--;
+  }
+
+  return Rooms;
+}
+
+#+end_src
+
+* Compile and Run All
+#+PROPERTY: header-args:sh :results output
+
+
+#+name: run all programs
+#+begin_src sh
+g++  src/upprodun.cpp -o src/upprodun
+
+echo "5\n33\n" | ./src/upprodun
+#+end_src
