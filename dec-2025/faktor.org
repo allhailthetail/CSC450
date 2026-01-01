@@ -1,0 +1,97 @@
+* Problem:
+- [[https://open.kattis.com/problems/faktor][Kattis Link]]
+  #+begin_quote
+  Impact Factor = Count of Citations / Num Articles Published
+
+  Given:
+  Articles and Impact Factor, Find the number of citations or "bribes" required to reach that factor.
+  i.e. find the numerator?
+
+  Seems easy...
+  IF * NumArticles = CitationCount.
+
+  The trick though is this is a rounding problem...
+  i.e.
+  #+end_quote
+
+
+:ELISP-HELPERS:
+Org Customizations
+#+name: Emacs tweaks
+#+begin_src elisp
+(+org-pretty-mode t)
+(flyspell-mode 0)
+(org-mode-restart) ;; Ensures the headers get read if created from template.
+#+end_src
+
+Create src Directory
+#+name: Automatically create SRC directory
+#+begin_src elisp
+;; Variables can be customized...
+(setq project-dir "src/")
+
+(let ((directory (concat (file-name-as-directory (file-name-directory (buffer-file-name))) project-dir)))
+  (make-directory project-dir t))
+(message "Created source directory: %s" project-dir)) ;; C-syntax for %s charcter string, nice...
+#+end_src
+
+Project Cleanup
+#+name: Project Cleanup Interactive
+#+begin_src elisp :results silent
+(defun +temp/cleanup-this-project ()
+  "Cleans up trivial/generated project files"
+  (interactive) ;; make this available with M-x
+  (+org/remove-result-blocks 0) ;; remove result blocks back to the beginning...
+  (delete-directory project-dir t)) ;; delete src directory
+  #+end_src
+
+Tangle all files automatically
+#+name: Tangle All Blocks
+#+begin_src elisp
+;; It's nice if when calling org-babel-execute-buffer, that includes tangling all my files...
+(org-babel-tangle) ;; tangle everything as a last step...
+#+end_src
+
+:END:
+
+* Solution:
+#+begin_src cpp :noeval :tangle src/faktor.cpp
+#include <iostream>
+
+int main() {
+  // Init and take values from user...
+  //   A -> The number of Articles
+  //   I -> The desired impact
+  int A = 0;
+  int I = 0;
+  std::cin >> A;
+  std::cin >> I;
+
+  float C = A*I; // the number of citations needed, set to product and iterated over
+
+  /*
+   I had to invent a way to tell C++ how to do ceiling calculations...
+   Since ceil(23.0001) = 24, I'm using I-1 as the starting point.
+
+   So, I'm decreasing C incrementally until I'm just shy of I-1...
+   The while loop technically goes one too many, so C+1 is what's printed.
+   ,*/
+  while (C/A > I-1) {
+    --C;
+  }
+
+  // Provide the calculated value for C:
+  std::cout << C+1 << '\n';
+
+  // Exit Normally...
+  return 0;
+}
+#+end_src
+
+* Run Program:
+#+begin_src bash :results output
+g++ src/faktor.cpp -o src/faktor
+echo "38 24" | ./src/faktor
+echo "1 100" | ./src/faktor
+echo "10 10" | ./src/faktor
+#+end_src
